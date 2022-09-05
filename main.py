@@ -1,6 +1,6 @@
 import random
 import uuid
-from Tools.scripts.finddiv import process
+import multiprocessing
 
 
 def generate_fio_dr():
@@ -66,9 +66,12 @@ def generate_dudl():
     born_city = "Москва"
     born_county = "Россия"
 
-    status = "alive"
+    status = "ACTIVE"
+    a = f"{dudl_type}, {dudl_seria}, {dudl_number}, {dudl_start_date}, {dudl_end_date}," \
+        f"{where_dudl_gets}, {dudl_kod_where_get}, {civil}, {is_civil}, {name}, {surname}," \
+        f" {patronymic}, {dr}, {sex}, {born_city}, {born_county}, {status}"
 
-    return dudl_type, dudl_seria, dudl_number, dudl_start_date, dudl_end_date, where_dudl_gets, dudl_kod_where_get, civil, is_civil, name, surname, patronymic, dr, sex, born_city, born_county, status
+    return a
 
 
 def generate_date(year=True, month=True, day=True):
@@ -107,45 +110,83 @@ def generate_random_enp(len_value=16):
     return a
 
 
-def random_data_set(count):
-    # for x in range(5):
-    #     for i in range(count + 1):
-    ter = '77'
+def generate_pcy():
+    pcy_number = [str(random.randrange(1, 9)) for _ in range(16)]
+    pcy_number = ''.join(pcy_number)
+
+    pcy_seria = [str(random.randrange(1, 9)) for _ in range(11)]
+    pcy_seria = ''.join(pcy_seria)
+
     enp = f"{generate_random_enp()}"
+    data = generate_fio_dr()
+
+    pcyDateB = "2022-09-02"
+    pcyDateE = "2022-09-02"
+    pcyDateH = "2022-09-02"
+    pcyDateT = "2022-09-02"
+    pcyDateEnpCalc = "2022-09-02"
+    pcyDatePr = "2022-09-02"
     policy_type = f"{generate_policy_type()}"
+    pcyStatus = "ACTIVE"
+    descr = "TEST_DESCR"
+    gender = data[4]
+    insurId = uuid.uuid4()
+    insurfId = insurId
+    name = data[0]
+    surname = data[1]
+    patronymic = data[2]
+    dr = data[3]
+    gender = data[4]
 
-    ern = [str(random.randrange(1, 9)) for _ in range(8)]
-    ern = ''.join(ern)
-    print()
-
-    result = f"{ter}, {enp}, {policy_type}, {ern}"
-    with open(f'result.csv', 'a') as f:
-        f.write(str(result))
-
-
-    # result = f"""
-    #     {{ terr: {ter},
-    #     pcy: {{
-    #         enp: {enp},
-    #         pcyDateB: {generate_date()},
-    #         descr: {uuid.uuid4()},
-    #         pcyType: {policy_type}
-    #     }},
-    #     ddl: {{
-    #         {generate_dudl()}
-    #     }},
-    #     ern:
-    #     }}
-    #     """
+    return f"{pcy_seria}, {pcy_number}, {enp}, {pcyDateB}, {pcyDateE}, {pcyDateH}, {pcyDateT}, {pcyDateEnpCalc}, {pcyDatePr}, {policy_type}, {pcyStatus}, {descr}, {gender}, {insurId}, {insurfId}, {name}, {surname}, {patronymic}, {dr}, {gender}"
 
 
+def generate_sn():
+    snils = [str(random.randrange(1, 9)) for _ in range(11)]
+    snils.insert(3, '-')
+    snils.insert(7, '-')
+    snils.insert(-2, '-')
+    snils = ''.join(snils)
+    descr = 'Тестовый комент'
+    dsourceType = "CS"
+
+
+generate_sn()
+
+
+def random_data_set(count, csv_count):
+    result = []
+    for i in range(count + 1):
+        ter = '77'
+        ern = [str(random.randrange(1, 9)) for _ in range(8)]
+        ern = ''.join(ern)
+        print()
+
+        result.append(f"{ter}, {generate_pcy()}, {generate_dudl()}, {ern}, {generate_sn()}'\n")
+
+        print(f"[$={csv_count}][SS={i}")
+
+    result = ''.join(result)
+    with open(f'result{csv_count}.csv', 'a') as f:
+        f.write(result)
 
 
 def main():
-    random_data_set(2000000)
+    p1 = multiprocessing.Process(target=random_data_set, args=(100000, 1))
+    p1.start()
+
+    p2 = multiprocessing.Process(target=random_data_set, args=(100000, 2))
+    p2.start()
+
+    p3 = multiprocessing.Process(target=random_data_set, args=(100000, 3))
+    p3.start()
+
+    p4 = multiprocessing.Process(target=random_data_set, args=(100000, 4))
+    p4.start()
+
+    p5 = multiprocessing.Process(target=random_data_set, args=(100000, 5))
+    p5.start()
 
 
 if __name__ == "__main__":
-    # generate_dudl()
-    print(random_data_set(1))
-    # print(generate_fio_dr())
+    main()
